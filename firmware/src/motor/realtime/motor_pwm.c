@@ -413,14 +413,12 @@ void motor_pwm_set_freewheeling(void)
 
 void motor_pwm_set_braking(void)
 {
-	irq_primask_disable();
 	for (int phase = 0; phase < MOTOR_NUM_PHASES; phase++) {
 		irq_primask_disable();
 		phase_set_i(phase, 0, false);
 		irq_primask_enable();
 		}
 	adjust_adc_sync_default();
-	irq_primask_enable();
 }
 
 void motor_pwm_emergency(void)
