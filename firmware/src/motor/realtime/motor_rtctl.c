@@ -1039,6 +1039,19 @@ void motor_rtctl_stop(void)
 	motor_pwm_set_freewheeling();
 }
 
+void motor_rtctl_braking(void)
+{
+	_state.flags = 0;
+	motor_timer_cancel();
+	_state.flags = 0;
+
+	irq_primask_disable();
+	motor_adc_enable_from_isr(); // ADC should be enabled by default
+	irq_primask_enable();
+
+	motor_pwm_set_braking();
+}
+
 void motor_rtctl_set_duty_cycle(float duty_cycle)
 {
 	// We don't need a critical section to write an integer

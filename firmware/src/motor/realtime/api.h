@@ -115,6 +115,11 @@ void motor_rtctl_start(float initial_duty_cycle, float target_duty_cycle,
 void motor_rtctl_stop(void);
 
 /**
+ * Engage esc-braking.
+ */
+void motor_rtctl_braking(void);
+
+/**
  * Configure PWM duty cycle
  * @param [in] duty_cycle PWM duty cycle [-1; 1], negative - braking, positive - forward
  */
