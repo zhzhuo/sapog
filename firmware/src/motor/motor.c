@@ -110,6 +110,9 @@ static struct params
 
 	float voltage_current_lowpass_tau;
 	int num_unexpected_stops_to_latch;
+
+	bool esc_braking;
+	float esc_braking_pct;
 } _params;
 
 
@@ -130,6 +133,8 @@ CONFIG_PARAM_FLOAT("mot_i_max_p",  0.2,    0.01,    2.0)
 CONFIG_PARAM_FLOAT("mot_lpf_freq", 20.0,   1.0,     200.0)
 CONFIG_PARAM_INT("mot_stop_thres", 7,      1,       100)
 
+CONFIG_PARAM_INT("esc_braking",    0,			0,     1)
+CONFIG_PARAM_FLOAT("esc_braking_pct",  0.5,    0.0,    1.0)
 
 static void configure(void)
 {
@@ -151,6 +156,9 @@ static void configure(void)
 
 	_params.voltage_current_lowpass_tau = 1.0f / configGet("mot_lpf_freq");
 	_params.num_unexpected_stops_to_latch = configGet("mot_stop_thres");
+
+	_params.esc_braking = configGet("esc_braking");
+	_params.esc_braking_pct = configGet("esc_braking_pct");
 
 	printf("Motor: RPM range: [%u, %u]; poles: %i\n", _params.rpm_min, _params.rpm_max, _params.poles);
 }
@@ -209,7 +217,11 @@ static void update_filters(float dt)
 
 static void stop(bool expected)
 {
-	motor_rtctl_braking();
+	if (_params.esc_braking == TRUE) {
+		motor_rtctl_braking(_params.esc_braking_pct);
+	} else {
+			motor_rtctl_stop();
+	}
 	_state.limit_mask = 0;
 	_state.dc_actual = 0.0;
 	_state.dc_openloop_setpoint = 0.0;

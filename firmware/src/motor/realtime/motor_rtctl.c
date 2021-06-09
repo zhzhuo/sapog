@@ -1039,7 +1039,7 @@ void motor_rtctl_stop(void)
 	motor_pwm_set_freewheeling();
 }
 
-void motor_rtctl_braking(void)
+void motor_rtctl_braking(float esc_braking_strength)
 {
 	_state.flags = 0;
 	motor_timer_cancel();
@@ -1049,7 +1049,7 @@ void motor_rtctl_braking(void)
 	motor_adc_enable_from_isr(); // ADC should be enabled by default
 	irq_primask_enable();
 
-	motor_pwm_set_braking(0.5f);
+	motor_pwm_set_braking(esc_braking_strength);
 }
 
 void motor_rtctl_set_duty_cycle(float duty_cycle)
