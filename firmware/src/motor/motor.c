@@ -209,11 +209,7 @@ static void update_filters(float dt)
 
 static void stop(bool expected)
 {
-	if (motor_is_idle() == TRUE) {
-		motor_rtctl_braking();
-	} else {
-		motor_rtctl_stop();
-	}
+	motor_rtctl_braking();
 	_state.limit_mask = 0;
 	_state.dc_actual = 0.0;
 	_state.dc_openloop_setpoint = 0.0;
