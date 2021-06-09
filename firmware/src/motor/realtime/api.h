@@ -117,7 +117,7 @@ void motor_rtctl_stop(void);
 /**
  * Engage esc-braking.
  */
-void motor_rtctl_braking(void);
+void motor_rtctl_braking(float esc_braking_strength);
 
 /**
  * Configure PWM duty cycle
