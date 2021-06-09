@@ -302,7 +302,7 @@ __attribute__((optimize(3)))
 static inline void phase_reset_i(uint_fast8_t phase)
 {
 	if (phase == 0) {
-		TIM1->CCER &= ~(TIM_CCER_CC1E | TIM_CCER_CC1NE);
+		TIM1->CCER &= ~(TIM_CCER_CC1E | TIM_CCER_CC1NE); // disable CH1 and CH1N
 		TIM1->CCMR1 &= ~TIM_CCMR1_OC1M;
 	} else if (phase == 1) {
 		TIM1->CCER &= ~(TIM_CCER_CC2E | TIM_CCER_CC2NE);
@@ -328,7 +328,7 @@ static inline void phase_set_i(uint_fast8_t phase, uint_fast16_t pwm_val, bool i
 		} else {
 			TIM1->CCMR1 |= TIM_CCMR1_OC1M_2 | TIM_CCMR1_OC1M_1;                 // PWM mode 1 non inverted
 		}
-		TIM1->CCER |= (TIM_CCER_CC1E | TIM_CCER_CC1NE);
+		TIM1->CCER |= (TIM_CCER_CC1E | TIM_CCER_CC1NE);  // enable CH1 and CH1N
 	} else if (phase == 1) {
 		TIM1->CCR2 = pwm_val;
 		if (inverted) {
