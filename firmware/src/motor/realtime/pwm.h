@@ -85,7 +85,7 @@ void motor_pwm_manip(const enum motor_pwm_phase_manip command[MOTOR_NUM_PHASES])
 
 void motor_pwm_set_freewheeling(void);
 
-void motor_pwm_set_braking(void);
+void motor_pwm_set_braking(float braking_strength);
 
 void motor_pwm_emergency(void);
 

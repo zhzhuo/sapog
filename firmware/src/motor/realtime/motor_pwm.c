@@ -348,6 +348,34 @@ static inline void phase_set_i(uint_fast8_t phase, uint_fast16_t pwm_val, bool i
 	}
 }
 
+/**
+ * Assumes:
+ *  - motor IRQs are disabled
+ */
+__attribute__((optimize(3)))
+static inline void phase_set_braking(uint_fast16_t pwm_val)
+{
+	// The channel must be enabled in the last order when it is fully configured
+	// Phase A
+	TIM1->CCR1 = pwm_val;
+	TIM1->CCMR1 &= ~TIM_CCMR1_OC1M_0; // Set PWM mode 2
+	TIM1->CCMR1 |= TIM_CCMR1_OC1M_2 | TIM_CCMR1_OC1M_1;
+	TIM1->CCER &= ~TIM_CCER_CC1E; // Disable CH1 (FET_A_HIGH)
+	TIM1->CCER |= TIM_CCER_CC1NE; // Enable CH1N (FET_A_LOW)
+	// Phase B
+	TIM1->CCR2 = pwm_val;
+	TIM1->CCMR1 &= ~TIM_CCMR1_OC2M_0;
+	TIM1->CCMR1 |= TIM_CCMR1_OC2M_2 | TIM_CCMR1_OC2M_1;
+	TIM1->CCER &= ~TIM_CCER_CC2E;
+	TIM1->CCER |= TIM_CCER_CC2NE;
+	// Phase C
+	TIM1->CCR3 = pwm_val;
+	TIM1->CCMR2 &= ~TIM_CCMR2_OC3M_0;
+	TIM1->CCMR2 |= TIM_CCMR2_OC3M_2 | TIM_CCMR2_OC3M_1;
+	TIM1->CCER &= ~TIM_CCER_CC3E;
+	TIM1->CCER |= TIM_CCER_CC3NE;
+}
+
 __attribute__((optimize(3)))
 static inline void adjust_adc_sync(int pwm_val)
 {
@@ -411,14 +439,14 @@ void motor_pwm_set_freewheeling(void)
 	irq_primask_enable();
 }
 
-void motor_pwm_set_braking(void)
+void motor_pwm_set_braking(float braking_strength)
 {
-	for (int phase = 0; phase < MOTOR_NUM_PHASES; phase++) {
-		irq_primask_disable();
-		phase_set_i(phase, 0, false);
-		irq_primask_enable();
-		}
-	adjust_adc_sync_default();
+	uint_fast16_t pwm_val = 0;
+	pwm_val = (uint_fast16_t)(_pwm_top * braking_strength);
+	irq_primask_disable();
+	phase_set_braking(pwm_val + 1);
+	irq_primask_enable();
+	adjust_adc_sync(_pwm_half_top + (pwm_val / 2) + 1);
 }
 
 void motor_pwm_emergency(void)

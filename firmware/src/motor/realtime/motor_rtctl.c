@@ -1048,8 +1048,8 @@ void motor_rtctl_braking(void)
 	irq_primask_disable();
 	motor_adc_enable_from_isr(); // ADC should be enabled by default
 	irq_primask_enable();
-	
-	motor_pwm_set_braking();
+
+	motor_pwm_set_braking(0.5f);
 }
 
 void motor_rtctl_set_duty_cycle(float duty_cycle)
